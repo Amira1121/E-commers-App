@@ -30,11 +30,16 @@ const [user, setUser] = useState(null);
         }
     },[]);
 
+   
+    
+
   return (
     <authContext.Provider value={{
       setUserToken,
       userToken,
+      
       user,
+      
     }}>
 
     {children}

@@ -27,7 +27,7 @@ import { WishlistProvider } from './context/WishlistContext';
 import ResetPassword from './Componants/ResetPassword/ResetPassword';
 import ResetCode from './Componants/ResetCode/ResetCode';
 import OrdersPage from './Componants/AllOrdersPage/OrdersPage';
-import { OrdersProvider } from "./context/OrdersContext";
+// import { OrdersProvider } from "./context/OrdersContext";
 
 
 
@@ -70,7 +70,7 @@ function App() {
 <AuthContextProvider>
 
 <WishlistProvider>
-<OrdersProvider>
+{/* <OrdersProvider> */}
 <CartContextProvider>
 
 <RouterProvider router={router}/>
@@ -78,7 +78,8 @@ function App() {
 
 </CartContextProvider>
 
-</OrdersProvider>
+{/* </OrdersProvider> */}
+
 </WishlistProvider>
 
 </AuthContextProvider>

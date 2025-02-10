@@ -9,15 +9,16 @@ import { faHeart, faBars, faTimes } from '@fortawesome/free-solid-svg-icons'; //
 import './Navbar.css';
 
 export default function Navbar() {
-  const { userToken, login, logout } = useContext(authContext); // Use user object
+  const { userToken, setUserToken } = useContext(authContext); // Use user object
   const navigate = useNavigate();
   const { wishlistItems } = useWishlist();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State for mobile menu
 
-  const handleLogout = () => {
-    logout();
+  function handleLogout() {
+    localStorage.removeItem('tkn');
+    setUserToken(null);
     navigate('/login');
-  };
+  }
 
   const activeLinkStyle = ({ isActive }) => ({
     color: isActive ? '#059669' : '#1a1a1a',
