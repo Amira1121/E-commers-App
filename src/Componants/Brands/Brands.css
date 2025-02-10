@@ -1,0 +1,85 @@
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animate-pop-in {
+  animation: pop-in 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+/* Brand Card Styles */
+.brand-card {
+  @apply rounded-lg shadow-md overflow-hidden relative transition-all duration-300;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+}
+
+.brand-card:hover {
+  @apply shadow-xl transform scale-[1.02];
+  z-index: 2;
+  box-shadow: 0 10px 20px rgba(91, 244, 2, 0.734); 
+
+}
+
+.image-container {
+  @apply relative h-48 overflow-hidden bg-gray-100;
+}
+
+.image-container img {
+  @apply w-full h-full object-cover transition-transform duration-500;
+}
+
+.brand-card:hover img {
+  transform: scale(1.08);
+
+    box-shadow: 0 10px 20px rgba(91, 244, 2, 0.734); 
+}
+
+.brand-title {
+  @apply text-center p-3 font-medium text-gray-700 transition-colors duration-300;
+  background: linear-gradient(45deg, #48bb78, #38a169);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .brand-card {
+    animation-delay: 0s !important;
+  }
+}

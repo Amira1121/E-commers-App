@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+.active{
+   border-bottom: 3px solid #42934e; 
+}
+
+.slick-prev, .slick-next {
+   display: none !important;
+}

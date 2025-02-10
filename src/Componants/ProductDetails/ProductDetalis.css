@@ -1,0 +1,16 @@
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  .floating-discount {
+    animation: float 2s ease-in-out infinite;
+  }
+  
+  .image-glow {
+    transition: box-shadow 0.3s ease;
+  }
+  
+  .image-glow:hover {
+    box-shadow: 0 0 30px rgba(76, 175, 80, 0.3);
+  }
