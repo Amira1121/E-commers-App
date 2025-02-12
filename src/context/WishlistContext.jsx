@@ -5,109 +5,104 @@ import toast from "react-hot-toast";
 
 const WishlistContext = createContext();
 
-
 export function WishlistProvider({ children }) {
-    const { userToken } = useContext(authContext) || localStorage.getItem("tkn");
-    const [wishlistItems, setWishlistItems] = useState([]);
+  const { userToken } = useContext(authContext);
+  const token = userToken || localStorage.getItem("tkn");
+  const [wishlistItems, setWishlistItems] = useState([]);
+  const [loadingIds, setLoadingIds] = useState(new Set());
 
+  const fetchWishlist = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        "https://ecommerce.routemisr.com/api/v1/wishlist",
+        { headers: { token } }
+      );
 
-    const addToWishlist = useCallback(async (productId) => {
-        try {
-          // منع التكرار
-          if (wishlistItems.some((item) => item._id === productId)) {
-            toast.info("Item is already in the wishlist");
-            return;
-          }
-      
-          const response = await axios.post(
-            "https://ecommerce.routemisr.com/api/v1/wishlist",
-            { productId },
-            { headers: { token: userToken || localStorage.getItem("tkn") } }
-          );
-      
-          console.log("API Response:", response.data);
-
-          
-      
-          if (response.data.status === "success") {
-            const productDetails = response.data.data.product;
-            if (productDetails && productDetails._id) {
-              setWishlistItems((prev) => [...prev, productDetails]); // استخدام prev لضمان المزامنة
-              toast.success("Added to wishlist");
-              console.log("Updated Wishlist (after add):", [...wishlistItems, productDetails]);
-            }
-          }
-        } catch (error) {
-          toast.error(error.response?.data?.message || "An error occurred");
-          console.error("Error Adding to Wishlist:", error);
-        }
-      }, [wishlistItems, userToken]);
-      
-  
-  
-  console.log("Updated Wishlist:", wishlistItems);
-
-
+      if (response.data.status === "success") {
+        const items = response.data.data.map(item => item._id);
+        setWishlistItems(items);
+      }
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+      setWishlistItems([]);
+    }
+  }, [token]);
 
   useEffect(() => {
-    async function fetchWishlist() {
-      try {
-        const response = await axios.get(
-          "https://ecommerce.routemisr.com/api/v1/wishlist",
-          { headers: { token: userToken || localStorage.getItem("tkn") } }
-        );
-  
-        console.log("Fetched Wishlist:", response.data);
-  
-        if (response.data.status === "success") {
-          setWishlistItems(response.data.data || []); // تأكد من أن القائمة ليست undefined
-        }
-      } catch (error) {
-        console.error("Error fetching wishlist:", error);
-        setWishlistItems([]); // تأكد من تعيينه إلى قائمة فارغة
+    if (token) fetchWishlist();
+    else setWishlistItems([]);
+  }, [token, fetchWishlist]);
+
+  const addToWishlist = useCallback(async (productId) => {
+    if (!token) {
+      toast.error("Please login first");
+      return;
+    }
+
+    setLoadingIds(prev => new Set(prev).add(productId));
+    
+    try {
+      const response = await axios.post(
+        "https://ecommerce.routemisr.com/api/v1/wishlist",
+        { productId },
+        { headers: { token } }
+      );
+
+      if (response.data.status === "success") {
+        setWishlistItems(prev => [...prev, productId]);
+        toast.success("Added to wishlist");
       }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "An error occurred");
+    } finally {
+      setLoadingIds(prev => {
+        const next = new Set(prev);
+        next.delete(productId);
+        return next;
+      });
     }
-  
-    if (userToken) {
-      fetchWishlist();
-    } else {
-      setWishlistItems([]); // تعيين قائمة فارغة في حال عدم وجود توكن
-    }
-  }, [userToken]);
-  
-
-
+  }, [token]);
 
   const removeFromWishlist = useCallback(async (productId) => {
+    setLoadingIds(prev => new Set(prev).add(productId));
+    
     try {
       await axios.delete(
         `https://ecommerce.routemisr.com/api/v1/wishlist/${productId}`,
-        { headers: { token: userToken || localStorage.getItem("tkn") } }
+        { headers: { token } }
       );
-  
-      setWishlistItems((prev) => prev.filter((item) => item._id !== productId)); // استخدام prev لضمان المزامنة
-      toast.success("تم الحذف من المفضلة");
+
+      setWishlistItems(prev => prev.filter(id => id !== productId));
+      toast.success("Removed from wishlist");
     } catch (error) {
-      toast.error(error.response?.data?.message || "حدث خطأ");
-      console.error("Error Removing from Wishlist:", error);
+      toast.error(error.response?.data?.message || "An error occurred");
+    } finally {
+      setLoadingIds(prev => {
+        const next = new Set(prev);
+        next.delete(productId);
+        return next;
+      });
     }
-  }, [userToken]);
-  
+  }, [token]);
+
   const isInWishlist = useCallback(
-    (productId) => Array.isArray(wishlistItems) && wishlistItems.some((item) => item._id === productId),
+    (productId) => wishlistItems.includes(productId),
     [wishlistItems]
   );
-  
-  
+
   return (
-    <WishlistContext.Provider value={{ wishlistItems, addToWishlist, removeFromWishlist, isInWishlist }}>
+    <WishlistContext.Provider value={{ 
+      wishlistItems, 
+      addToWishlist, 
+      removeFromWishlist, 
+      isInWishlist,
+      loadingIds
+    }}>
       {children}
     </WishlistContext.Provider>
   );
 }
 
-
-// التصدير الأساسي المطلوب
 export function useWishlist() {
   const context = useContext(WishlistContext);
   if (!context) {

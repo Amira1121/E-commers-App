@@ -19,7 +19,7 @@ import '../Home/Home.css';
 
 export default function Home() {
   const { addProductToCart } = useContext(cartContext);
-  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const { addToWishlist, removeFromWishlist, isInWishlist ,setWishlistItems} = useWishlist();
 
   const { data, isLoading } = useQuery({
     queryKey: ['productDetails'],
@@ -103,9 +103,11 @@ export default function Home() {
 <motion.button
   onClick={(e) => {
     e.preventDefault();
-    isInWishlist(product._id)
-      ? removeFromWishlist(product._id)
-      : addToWishlist(product._id); // استدعاء الدالة المعدلة
+    if (isInWishlist(product._id)) {
+      removeFromWishlist(product._id);
+    } else {
+      addToWishlist(product._id);
+    }
   }}
   className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-lg z-10"
 >
